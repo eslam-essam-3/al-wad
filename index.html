@@ -3,102 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد المهندس المسلم | إسلام عصام</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
+    <title>مساعد المهندس المسلم</title>
+    <meta name="description" content="تطبيق شامل لمواقيت الصلاة، الأذكار اليومية، والورد القرآني - صدقة جارية">
+    <meta name="theme-color" content="#10b981">
+
+    <meta property="og:title" content="مساعد المهندس المسلم">
+    <meta property="og:description" content="مواقيت الصلاة، الأذكار، وتتبع السنن الرواتب في تطبيق واحد.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/2972/2972105.png">
+
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="container">
         <header>
-            <div class="charity-header">
-                <p>صدقة جارية على روح المغفور لها بإذن الله</p>
-                <h2 class="legacy-name">الحاجة / أمباركة محمد عتمان</h2>
-            </div>
-
-            <h1 id="time">00:00:00 --</h1>
-            <p id="date">-- -- ----</p>
-            
-            <div class="dev-brand">
-                صُمم بواسطة المهندس <span class="highlight">إسلام عصام</span>
-            </div>
+            <p>صدقة جارية على روح المغفور لها بإذن الله</p>
+            <h1>الحاجة / أمباركة محمد عتمان</h1>
+            <div class="divider"></div>
+            <div id="time" class="clock">00:00:00</div>
+            <div id="date" class="date">الجمعة، 15 مايو</div>
+            <p class="signature">صُمم بواسطة المهندس <span class="engineer-name">إسلام عصام</span></p>
         </header>
 
-        <div class="main-grid">
-            <aside class="side-panel">
-                <section class="prayer-section card">
-                    <h3>🕌 مواقيت الصلاة</h3>
-                    <div id="prayerContainer">
-                        <p>جاري تحديد موقعك وجلب المواقيت...</p>
-                    </div>
-                </section>
+        <main class="main-grid">
+            <section class="prayer-section">
+                <h3>🕌 مواقيت الصلاة</h3>
+                <div id="prayerContainer" class="prayer-grid">
+                    <p>يرجى تفعيل الموقع للمواقيت.</p>
+                </div>
+            </section>
 
-                <section class="sunnah-section card">
-                    <h3>✅ تتبع السنن الرواتب</h3>
-                    <div class="sunnah-grid">
-                        <div class="sunnah-group">
-                            <h4>الفجر</h4>
-                            <label><input type="checkbox"> 2 ركعة (قبل)</label>
-                        </div>
-                        <div class="sunnah-group">
-                            <h4>الظهر</h4>
-                            <label><input type="checkbox"> 4 ركعات (قبل)</label>
-                            <label><input type="checkbox"> 2 ركعة (بعد)</label>
-                        </div>
-                        <div class="sunnah-group">
-                            <h4>المغرب</h4>
-                            <label><input type="checkbox"> 2 ركعة (بعد)</label>
-                        </div>
-                        <div class="sunnah-group">
-                            <h4>العشاء</h4>
-                            <label><input type="checkbox"> 2 ركعة (بعد)</label>
-                        </div>
-                        <div class="sunnah-group extra">
-                            <h4>نوافل</h4>
-                            <label><input type="checkbox"> صلاة الضحى</label>
-                            <label><input type="checkbox"> صلاة الوتر</label>
-                        </div>
+            <section class="sunnah-section">
+                <h3><input type="checkbox" checked disabled style="accent-color: #10b981;"> تتبع السنن الرواتب</h3>
+                <div class="sunnah-grid">
+                    <div class="sunnah-card">
+                        <h4>الفجر</h4>
+                        <label><input type="checkbox"> 2 ركعة (قبل)</label>
                     </div>
-                </section>
-            </aside>
+                    <div class="sunnah-card">
+                        <h4>الظهر</h4>
+                        <label><input type="checkbox"> 4 ركعات (قبل)</label>
+                        <label><input type="checkbox"> 2 ركعة (بعد)</label>
+                    </div>
+                    <div class="sunnah-card">
+                        <h4>المغرب</h4>
+                        <label><input type="checkbox"> 2 ركعة (بعد)</label>
+                    </div>
+                    <div class="sunnah-card">
+                        <h4>العشاء</h4>
+                        <label><input type="checkbox"> 2 ركعة (بعد)</label>
+                    </div>
+                </div>
+            </section>
 
-            <main class="content-panel">
-                <section class="ward-section card">
-                    <h3>📖 الأذكار والورد اليومي</h3>
-                    <div class="azkar-tabs">
-                        <button onclick="showAzkar('morning')">الصباح</button>
-                        <button onclick="showAzkar('evening')">المساء</button>
-                        <button onclick="showAzkar('supplication')">أدعية</button>
-                    </div>
-                    <div class="azkar-display">
-                        <p id="azkarText">اختر قسماً للبدء</p>
-                        <div id="counterContainer" style="display:none">
-                            <span id="azkarCount">0</span>
-                            <button class="count-btn" onclick="countAzkar()">تسبيح</button>
-                        </div>
-                    </div>
-                    <button class="next-btn" onclick="nextZikr()">الذكر التالي ➔</button>
-                </section>
+            <section class="azkar-section">
+                <h3>📖 الأذكار والورد اليومي</h3>
+                <div class="tabs">
+                    <button onclick="showAzkar('morning')">الصباح</button>
+                    <button onclick="showAzkar('evening')">المساء</button>
+                    <button onclick="showAzkar('supplication')">أدعية</button>
+                </div>
+                <div id="counterContainer" class="counter-card" style="display:none;">
+                    <p id="azkarText">اختر فئة من الأعلى</p>
+                    <div id="azkarCount" class="count-circle">0 / 0</div>
+                    <button class="btn-count" onclick="countAzkar()">تسبيح</button>
+                    <button class="btn-next" onclick="nextZikr()">الذكر التالي ➔</button>
+                </div>
+            </section>
 
-                <section class="quran-section card">
-                    <h3>📖 المصحف الإلكتروني</h3>
-                    <div class="quran-controls">
-                        <select id="surahSelect" onchange="loadContent('surah')">
-                            <option value="">اختر السورة...</option>
-                        </select>
-                        <select id="juzSelect" onchange="loadContent('juz')">
-                            <option value="">اختر الجزء...</option>
-                        </select>
-                    </div>
-                    <div id="quranContainer" class="quran-display">
-                        اختر سورة أو جزءاً لبدء القراءة
-                    </div>
-                </section>
-            </main>
-        </div>
+            <section class="quran-section">
+                <h3>📖 المصحف الشريف</h3>
+                <div class="quran-controls">
+                    <select id="surahSelect" onchange="loadContent('surah')">
+                        <option value="">اختر السورة</option>
+                    </select>
+                    <select id="juzSelect" onchange="loadContent('juz')">
+                        <option value="">اختر الجزء</option>
+                    </select>
+                </div>
+                <div id="quranContainer" class="quran-display"></div>
+            </section>
+        </main>
     </div>
+
+    <audio id="azanAudio" src="https://www.islamcan.com/common/azan/azan3.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>
 </html>
-<link rel="manifest" href="manifest.json">
