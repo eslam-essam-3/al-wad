@@ -163,3 +163,38 @@ select {
 .bg-asr { background-image: url('asr.jpg') !important; }
 .bg-maghrib { background-image: url('maghrib.jpg') !important; }
 .bg-isha { background-image: url('isha.jpg') !important; }
+/* 9. تنسيق المصحف الشريف (حل مشكلة الحروف المنفصلة) */
+.quran-display {
+    background: rgba(0, 0, 0, 0.5) !important;
+    padding: 25px;
+    border-radius: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: 1.8rem; /* تكبير الخط للقراءة */
+    line-height: 2.5; 
+    text-align: justify;
+    direction: rtl;
+    color: #ffffff;
+    font-family: 'Cairo', sans-serif;
+    
+    /* السطور اللي جاية هي اللي بتشبك الحروف في بعضها */
+    letter-spacing: 0 !important; 
+    word-spacing: 2px;
+    text-rendering: optimizeLegibility;
+    font-variant-ligatures: common-ligatures;
+    font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* شكل رقم الآية الجمالي */
+.verse-num {
+    color: var(--accent);
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 0 8px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    padding: 2px 10px;
+    display: inline-block;
+    line-height: 1;
+    background: rgba(16, 185, 129, 0.1);
+}
