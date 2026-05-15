@@ -1,197 +1,165 @@
-// 1. تعريف مصفوفة الأجزاء (30 جزء)
+// 1. تعريف المصفوفات والبيانات الثابتة
 const juzList = Array.from({length: 30}, (_, i) => `الجزء ${i + 1}`);
 
-// 2. مصفوفة أدعية الحاجة أمباركة (رحمها الله)
 const m_doas = [
     "اللهم اغفر لها وارحمها، وعافها واعف عنها، وأكرم نزلها، ووسع مدخلها، واغسلها بالماء والثلج والبرد.",
-    "اللهم إن كانت محسنة فزد في إحسانها، وإن كانت مسيئة فتجاوز عن سيئاتها.",
     "اللهم أبدلها داراً خيراً من دارها، وأهلاً خيراً من أهلها، وأدخلها الجنة.",
-    "اللهم اجعل قبرها روضة من رياض الجنة ولا تجعله حفرة من حفر النار.",
-    "اللهم يمّن كتابها، ويسّر حسابها، وثقل بالحسنات ميزانها.",
-    "اللهم ارحمها تحت الأرض، واسترهـا يوم العرض، ولا تخزها يوم يبعثون."
+    "اللهم اجعل قبرها روضة من رياض الجنة، ولا تجعله حفرة من حفر النار.",
+    "اللهم ارحم غربتها، وارحم شيبتها، وآنس وحشتها، واجعل مسكنها في أعلى الجنات.",
+    "اللهم اجعل ذريتها ذرية صالحة تدعو لها بخير إلى يوم الدين."
 ];
 
-let currentDoaIndex = 0;
-let currentAzkarList = [];
-let currentIndex = 0;
-let count = 0;
-
-// مصفوفة الأذكار
 const azkarData = {
-    sabah: [
+    "sabah": [
         "أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.",
-        "اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.",
-        "أعوذ بكلمات الله التامات من شر ما خلق. (3 مرات)",
-        "اللهم إني أسألك علماً نافعاً، ورزقاً طيباً، وعملاً متقبلاً.",
-        "يا حي يا قيوم برحمتك أستغيث، أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين."
+        "اللهم أنت ربي لا إله إلا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت.",
+        "يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين."
     ],
-    masa: [
+    "masa": [
         "أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.",
         "اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.",
-        "اللهم إني أعوذ بك من الكفر والفقر، وأعوذ بك من عذاب القبر.",
-        "بسم الله الذي لا يضر مع اسمه شيء في الأرض ولا في السماء وهو السميع العليم. (3 مرات)"
+        "أعوذ بكلمات الله التامات من شر ما خلق (3 مرات)."
     ],
-    adya: [
-        "اللهم إنك عفو كريم تحب العفو فاعف عني.",
+    "adya": [
         "ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار.",
-        "يا مقلب القلوب ثبت قلبي على دينك.",
-        "لا إله إلا أنت سبحانك إني كنت من الظالمين."
+        "اللهم إنك عفو كريم تحب العفو فاعفُ عني.",
+        "يا مقلب القلوب ثبت قلبي على دينك."
     ]
 };
 
-// 3. وظيفة تحميل القوائم وتنسيق الصفحة عند البدء
+// 2. المتغيرات الحركية
+let currentDoaIndex = 0;
+let currentAzkarList = azkarData.sabah;
+let zekrIndex = 0;
+let zekrCounter = 0;
+
+// 3. وظائف التشغيل عند التحميل
 window.onload = function() {
+    initSelectors();
+    updateWeatherAndPrayers();
+    updateDate();
+    setInterval(updateClock, 1000);
+    loadAzkar('sabah');
+};
+
+function initSelectors() {
     const juzSelect = document.getElementById('juzSelect');
     const surahSelect = document.getElementById('surahSelect');
 
-    // تحميل الأجزاء
     if(juzSelect) {
-        juzList.forEach((juz, index) => {
-            let opt = document.createElement('option');
-            opt.value = index + 1;
-            opt.innerHTML = juz;
-            juzSelect.appendChild(opt);
+        juzList.forEach((juz, i) => {
+            let opt = new Option(juz, i + 1);
+            juzSelect.add(opt);
         });
     }
 
-    // تحميل السور من الـ API
     fetch('https://api.alquran.cloud/v1/surah')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            data.data.forEach(surah => {
-                let opt = document.createElement('option');
-                opt.value = surah.number;
-                opt.innerHTML = `${surah.number}. ${surah.name}`;
-                surahSelect.appendChild(opt);
+            data.data.forEach(s => {
+                let opt = new Option(`${s.number}. ${s.name}`, s.number);
+                if(surahSelect) surahSelect.add(opt);
             });
-        });
-
-    updateWeatherAndPrayers(); 
-    setInterval(updateClock, 1000); 
-    loadAzkar('sabah'); // تحميل أذكار الصباح تلقائياً
-};
-
-// 4. وظيفة تحويل الوقت لنظام 12 ساعة (ص/م)
-function formatTime12(time24) {
-    if (!time24) return "--:--";
-    let [hours, minutes] = time24.split(':');
-    hours = parseInt(hours);
-    let period = hours >= 12 ? 'م' : 'ص';
-    hours = hours % 12 || 12;
-    return `${hours}:${minutes} ${period}`;
+        }).catch(err => console.error("API Error:", err));
 }
 
-// 5. جلب المواقيت وعرضها
+// 4. الوقت والتاريخ
+function updateClock() {
+    const clockEl = document.getElementById('digital-clock') || document.getElementById('clock');
+    if(clockEl) clockEl.innerText = new Date().toLocaleTimeString('ar-EG');
+}
+
+function updateDate() {
+    const dateEl = document.getElementById('date-display');
+    if(!dateEl) return;
+    const now = new Date();
+    const greg = now.toLocaleDateString('ar-EG', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(now);
+    dateEl.innerText = `${greg} | ${hijri}`;
+}
+
+// 5. المواقيت والخلفيات
 async function updateWeatherAndPrayers() {
-    const lat = 29.3085; // إحداثيات الفيوم
-    const lon = 30.8428;
-    
     try {
-        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=5`);
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=29.3085&longitude=30.8428&method=5`);
         const data = await res.json();
         const timings = data.data.timings;
+        displayPrayers(timings);
+        determineBackground(timings);
+    } catch (e) { console.log("Prayer API error"); }
+}
 
-        const prayerContainer = document.getElementById('prayer-times');
-        const prayerNames = {
-            Fajr: "الفجر",
-            Dhuhr: "الظهر",
-            Asr: "العصر",
-            Maghrib: "المغرب",
-            Isha: "العشاء"
-        };
-
-        prayerContainer.innerHTML = Object.keys(prayerNames).map(key => `
+function displayPrayers(t) {
+    const container = document.getElementById('prayer-times');
+    const names = { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء" };
+    if(container) {
+        container.innerHTML = Object.keys(names).map(k => `
             <div class="prayer-item">
-                <span class="prayer-name">${prayerNames[key]}</span>
-                <span class="prayer-time">${formatTime12(timings[key])}</span>
+                <span class="prayer-name">${names[k]}</span>
+                <span class="prayer-time">${formatTime12(t[k])}</span>
             </div>
         `).join('');
-
-        determineCurrentPrayer(timings);
-    } catch (error) {
-        console.error("خطأ في تحميل المواقيت", error);
     }
 }
 
-// 6. تحديد الخلفية بناءً على الوقت
-function determineCurrentPrayer(timings) {
+function formatTime12(t) {
+    let [h, m] = t.split(':');
+    h = parseInt(h);
+    return `${h % 12 || 12}:${m} ${h >= 12 ? 'م' : 'ص'}`;
+}
+
+function determineBackground(timings) {
     const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    const parseTime = (t) => {
-        const [h, m] = t.split(':');
-        return parseInt(h) * 60 + parseInt(m);
-    };
-
+    const current = now.getHours() * 60 + now.getMinutes();
+    const parse = (t) => { const [h, m] = t.split(':'); return parseInt(h) * 60 + parseInt(m); };
+    
     document.body.classList.remove('bg-fajr', 'bg-dhuhr', 'bg-asr', 'bg-maghrib', 'bg-isha');
-
-    if (currentTime >= parseTime(timings.Fajr) && currentTime < parseTime(timings.Dhuhr)) {
-        document.body.classList.add('bg-fajr');
-    } else if (currentTime >= parseTime(timings.Dhuhr) && currentTime < parseTime(timings.Asr)) {
-        document.body.classList.add('bg-dhuhr');
-    } else if (currentTime >= parseTime(timings.Asr) && currentTime < parseTime(timings.Maghrib)) {
-        document.body.classList.add('bg-asr');
-    } else if (currentTime >= parseTime(timings.Maghrib) && currentTime < parseTime(timings.Isha)) {
-        document.body.classList.add('bg-maghrib');
-    } else {
-        document.body.classList.add('bg-isha');
-    }
+    if (current >= parse(timings.Fajr) && current < parse(timings.Dhuhr)) document.body.classList.add('bg-fajr');
+    else if (current >= parse(timings.Dhuhr) && current < parse(timings.Asr)) document.body.classList.add('bg-dhuhr');
+    else if (current >= parse(timings.Asr) && current < parse(timings.Maghrib)) document.body.classList.add('bg-asr');
+    else if (current >= parse(timings.Maghrib) && current < parse(timings.Isha)) document.body.classList.add('bg-maghrib');
+    else document.body.classList.add('bg-isha');
 }
 
-// 7. وظائف الأذكار والدعاء
+// 6. الأذكار والسبحة
 function loadAzkar(type) {
     currentAzkarList = azkarData[type];
-    currentIndex = 0;
-    count = 0;
-    showZekr();
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    zekrIndex = 0;
+    zekrCounter = 0;
+    updateZekrUI();
 }
 
-function showZekr() {
-    const textElement = document.getElementById('zekr-text');
-    if (textElement && currentAzkarList.length > 0) {
-        textElement.innerText = currentAzkarList[currentIndex];
-        document.getElementById('count-btn').innerText = `تسبيح (0)`;
-    }
-}
-
-function updateCount() {
-    count++;
-    document.getElementById('count-btn').innerText = `تسبيح (${count})`;
+function handleZekrClick() {
+    zekrCounter++;
+    updateZekrUI();
 }
 
 function nextZekr() {
-    if (currentIndex < currentAzkarList.length - 1) {
-        currentIndex++;
-        count = 0;
-        showZekr();
-    } else {
-        alert("ختمت الأذكار يا هندسة، تقبل الله منك!");
-        currentIndex = 0;
-        count = 0;
-        showZekr();
-    }
+    zekrIndex = (zekrIndex + 1) % currentAzkarList.length;
+    zekrCounter = 0;
+    updateZekrUI();
+}
+
+function updateZekrUI() {
+    const txt = document.getElementById('zekr-text') || document.getElementById('azkar-text');
+    const btn = document.getElementById('counter-num') || document.getElementById('count-btn');
+    if(txt) txt.innerText = currentAzkarList[zekrIndex];
+    if(btn) btn.innerText = zekrCounter;
 }
 
 function nextDoa() {
-    currentDoaIndex = (currentDoaIndex + 1) % m_doas.length;
-    document.getElementById('doa-text').innerText = m_doas[currentDoaIndex];
+    doaIndex = (doaIndex + 1) % m_doas.length;
+    document.getElementById('doa-text').innerText = m_doas[doaIndex];
 }
 
-function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').innerHTML = now.toLocaleTimeString('ar-EG');
-}
-
-// مستمع لحدث تغيير السورة
-document.getElementById('surahSelect').addEventListener('change', function() {
-    const surahId = this.value;
-    if (!surahId) return;
-    const display = document.getElementById('quranContent');
+// 7. مستمع السور
+document.getElementById('surahSelect')?.addEventListener('change', function() {
+    const display = document.getElementById('quran-display') || document.getElementById('quranContent');
+    if(!display || !this.value) return;
     display.innerHTML = "جاري تحميل الآيات...";
-    fetch(`https://api.alquran.cloud/v1/surah/${surahId}`)
+    fetch(`https://api.alquran.cloud/v1/surah/${this.value}`)
         .then(res => res.json())
         .then(data => {
-            let ayahs = data.data.ayahs.map(a => `<span class="ayah">${a.text} ﴿${a.numberInSurah}﴾</span>`).join(' ');
-            display.innerHTML = ayahs;
+            display.innerHTML = data.data.ayahs.map(a => `${a.text} <span class="verse-num">${a.numberInSurah}</span>`).join(' ');
         });
 });

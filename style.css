@@ -16,6 +16,7 @@ body {
     background-position: center;
     background-attachment: fixed;
     transition: background-image 1s ease-in-out;
+    background-color: #0f172a; /* لون احتياطي خلفي */
 }
 
 /* 2. الهيدر وتنسيق الساعة */
@@ -25,33 +26,36 @@ body {
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 20px;
+    backdrop-filter: blur(5px);
 }
 
 .digital-clock {
     font-size: 3.5rem;
     color: #fff;
-    text-shadow: 0 0 10px var(--accent);
+    text-shadow: 0 0 15px var(--accent);
     margin: 10px 0;
+    font-weight: bold;
 }
 
-/* 3. تنسيق الكروت العام (الشفافية والزجاج) */
+/* 3. تنسيق الكروت العام (Glassmorphism) */
 .card {
     background: var(--card-bg) !important;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 15px;
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 4. مواقيت الصلاة (المربعات الشيك) */
-.prayer-grid {
+/* 4. مواقيت الصلاة والسنن */
+.prayer-grid, .sunnan-table {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.prayer-item {
+.prayer-item, .sunna-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -67,41 +71,16 @@ body {
     transform: translateX(-5px) scale(1.01);
 }
 
-.prayer-name {
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: #eee;
-}
+.prayer-name { font-weight: bold; font-size: 1.1rem; color: #eee; }
+.prayer-time { font-weight: 700; color: var(--accent); font-size: 1.2rem; }
 
-.prayer-time {
-    font-weight: 700;
-    color: var(--accent);
-    font-size: 1.2rem;
-}
-
-/* 5. السنن الرواتب */
-.sunnan-table {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.sunna-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border-right: 5px solid var(--accent);
-}
-
-/* 6. قسم الأدعية (مخصص للحاجة أمباركة) */
+/* 5. قسم الأدعية والأذكار */
 .doa-section {
     border-top: 4px solid var(--accent) !important;
     text-align: center;
 }
 
-.doa-display {
+.doa-display, .azkar-box {
     font-size: 1.4rem;
     line-height: 2;
     padding: 20px;
@@ -114,6 +93,7 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     margin-bottom: 15px;
+    text-align: center;
 }
 
 .btn-next-doa {
@@ -133,18 +113,6 @@ body {
     transform: scale(1.05);
 }
 
-/* 7. الأذكار والقوائم */
-.azkar-box {
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 1.2rem;
-    line-height: 1.6;
-    padding: 15px;
-}
-
 select {
     width: 48%;
     padding: 12px;
@@ -157,35 +125,32 @@ select {
     cursor: pointer;
 }
 
-/* 8. صور الخلفيات المتحركة بناءً على الوقت */
-.bg-fajr { background-image: url('fajr.jpg') !important; }
-.bg-dhuhr { background-image: url('dhuhr.jpg') !important; }
-.bg-asr { background-image: url('asr.jpg') !important; }
-.bg-maghrib { background-image: url('maghrib.jpg') !important; }
-.bg-isha { background-image: url('isha.jpg') !important; }
-/* 9. تنسيق المصحف الشريف (حل مشكلة الحروف المنفصلة) */
+/* 6. المصحف الشريف - الحل النهائي المدمج */
 .quran-display {
     background: rgba(0, 0, 0, 0.5) !important;
     padding: 25px;
     border-radius: 15px;
     max-height: 500px;
     overflow-y: auto;
-    font-size: 1.8rem; /* تكبير الخط للقراءة */
-    line-height: 2.5; 
-    text-align: justify;
+    font-size: 1.8rem;
+    line-height: 2.5;
+    text-align: center; /* التوسيط أفضل جمالياً */
     direction: rtl;
     color: #ffffff;
-    font-family: 'Cairo', sans-serif;
+    font-family: 'Cairo', sans-serif !important;
     
-    /* السطور اللي جاية هي اللي بتشبك الحروف في بعضها */
-    letter-spacing: 0 !important; 
+    /* منع تقطيع الحروف وتفعيل الربط التلقائي */
+    white-space: normal;
+    word-wrap: break-word;
+    letter-spacing: 0 !important;
     word-spacing: 2px;
     text-rendering: optimizeLegibility;
-    font-variant-ligatures: common-ligatures;
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-variant-ligatures: common-ligatures !important;
+    -webkit-font-feature-settings: "liga" 1, "kern" 1;
+    font-feature-settings: "liga" 1, "kern" 1;
+    text-shadow: 0 0 1px rgba(0,0,0,0.1);
 }
 
-/* شكل رقم الآية الجمالي */
 .verse-num {
     color: var(--accent);
     font-weight: bold;
@@ -198,19 +163,19 @@ select {
     line-height: 1;
     background: rgba(16, 185, 129, 0.1);
 }
-/* تنسيق المصحف لضمان اتصال الحروف على الموبايل */
-.quran-display {
-    font-family: 'Cairo', sans-serif !important;
-    direction: rtl;
-    text-align: center;
-    line-height: 2;
-    font-size: 1.5rem;
-    
-    /* الخصائص دي هي اللي هتشبك الحروف في بعضها */
-    white-space: normal;
-    word-wrap: break-word;
-    letter-spacing: 0 !important;
-    font-variant-ligatures: common-ligatures !important;
-    -webkit-font-feature-settings: "liga" 1, "kern" 1; /* للموبايلات الأيفون والأندرويد */
-    font-feature-settings: "liga" 1, "kern" 1;
+
+/* 7. ضبط التجاوب للموبايل */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .digital-clock { font-size: 2.5rem; }
+    .quran-display { font-size: 1.4rem; padding: 15px; }
+    select { width: 98%; margin: 5px 1%; }
+    .prayer-item { padding: 10px 15px; }
 }
+
+/* 8. خلفيات الوقت */
+.bg-fajr { background-image: url('fajr.jpg') !important; }
+.bg-dhuhr { background-image: url('dhuhr.jpg') !important; }
+.bg-asr { background-image: url('asr.jpg') !important; }
+.bg-maghrib { background-image: url('maghrib.jpg') !important; }
+.bg-isha { background-image: url('isha.jpg') !important; }
