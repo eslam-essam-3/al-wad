@@ -1,175 +1,165 @@
-/* تنسيقات عامة */
+/* 1. الإعدادات العامة والمتغيرات */
 :root {
-    --primary: #0f172a;
     --accent: #10b981;
-    --text: #f8fafc;
-    --card-bg: #1e293b;
+    --text: #ffffff;
+    --card-bg: rgba(0, 0, 0, 0.45);
 }
 
 body {
     font-family: 'Cairo', sans-serif;
-    background-color: var(--primary);
-    color: var(--text);
     margin: 0;
     padding: 20px;
     direction: rtl;
-}
-
-.container {
-    max-width: 900px;
-    margin: auto;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.clock {
-    font-size: 3rem;
-    color: var(--accent);
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-/* تقسيمة العناصر (المربعات) */
-.main-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-section {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-
-h3 {
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 10px;
-    margin-top: 0;
-}
-
-/* الأذكار */
-.tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.tabs button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: var(--primary);
-    color: white;
-    cursor: pointer;
-}
-
-.counter-card {
-    text-align: center;
-    background: #0f172a;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.count-circle {
-    font-size: 2rem;
-    background: var(--accent);
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    border-radius: 50%;
-    margin: 15px auto;
-}
-
-.btn-count, .btn-next {
-    width: 100%;
-    padding: 12px;
-    margin: 5px 0;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.btn-count { background: var(--accent); color: white; }
-.btn-next { background: #334155; color: white; }
-
-/* مواقيت الصلاة */
-.prayer-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.prayer-card {
-    display: flex;
-    justify-content: space-between;
-    background: #0f172a;
-    padding: 10px;
-    border-radius: 8px;
-}
-
-/* المصحف */
-.quran-display {
-    max-height: 300px;
-    overflow-y: auto;
-    background: #f8fafc;
-    color: #0f172a;
-    padding: 15px;
-    border-radius: 8px;
-    line-height: 2;
-    text-align: justify;
-}
-/* تأثير الانتقال الناعم بين الخلفيات */
-body {
-    transition: background-image 1.5s ease-in-out;
+    color: var(--text);
+    min-height: 100vh;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    min-height: 100vh;
+    transition: background-image 1s ease-in-out;
 }
 
-/* ربط الكلاسات بالصور اللي أنت رفعتها */
-.bg-fajr { background-image: url('fajr.jpg'); }
-.bg-dhuhr { background-image: url('dhuhr.jpg'); }
-.bg-asr { background-image: url('asr.jpg'); }
-.bg-maghrib { background-image: url('maghrib.jpg'); }
-.bg-isha { background-image: url('isha.jpg'); }
-/* تنسيق الصناديق (Select) */
-select {
-    width: 45%; /* عشان يجوا جنب بعض بشكل متناسق */
-    padding: 10px;
-    margin: 10px 2%;
+/* 2. الهيدر وتنسيق الساعة */
+.main-header {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.digital-clock {
+    font-size: 3.5rem;
+    color: #fff;
+    text-shadow: 0 0 10px var(--accent);
+    margin: 10px 0;
+}
+
+/* 3. تنسيق الكروت العام (الشفافية والزجاج) */
+.card {
+    background: var(--card-bg) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 4. مواقيت الصلاة (المربعات الشيك) */
+.prayer-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prayer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border-right: 5px solid var(--accent);
+    transition: all 0.3s ease;
+}
+
+.prayer-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-5px) scale(1.01);
+}
+
+.prayer-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #eee;
+}
+
+.prayer-time {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+/* 5. السنن الرواتب */
+.sunnan-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sunna-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgba(44, 62, 80, 0.8); /* لون غامق شفاف */
-    color: white; /* لون الكتابة */
-    font-size: 1rem;
-    font-family: 'Cairo', sans-serif; /* لو مستخدم خط كايرو */
-    cursor: pointer;
-    outline: none;
-    appearance: none; /* بيشيل السهم الافتراضي القديم */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg%20xmlns%3D"http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg"%20width%3D"292.4"%20height%3D"292.4"><path%20fill%3D"%23ffffff"%20d%3D"M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z"%2F><%2Fsvg>'); /* سهم جديد شيك أبيض */
-    background-repeat: no-repeat;
-    background-position: left 10px center; /* السهم على الشمال عشان الكلام عربي */
-    background-size: 12px;
+    border-right: 5px solid var(--accent);
 }
 
-/* تأثير عند الوقوف بالماوس */
-select:hover {
-    border-color: #28a745; /* يقلب أخضر خفيف */
-    background-color: rgba(52, 73, 94, 0.9);
+/* 6. قسم الأدعية (مخصص للحاجة أمباركة) */
+.doa-section {
+    border-top: 4px solid var(--accent) !important;
+    text-align: center;
 }
 
-/* تنسيق الكلام جوه القائمة */
-select option {
-    background-color: #2c3e50;
+.doa-display {
+    font-size: 1.4rem;
+    line-height: 2;
+    padding: 20px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.btn-next-doa {
+    background: var(--accent);
     color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-family: 'Cairo';
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
 }
+
+.btn-next-doa:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+/* 7. الأذكار والقوائم */
+.azkar-box {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    padding: 15px;
+}
+
+select {
+    width: 48%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    font-family: 'Cairo';
+    margin: 5px 1%;
+    cursor: pointer;
+}
+
+/* 8. صور الخلفيات المتحركة بناءً على الوقت */
+.bg-fajr { background-image: url('fajr.jpg') !important; }
+.bg-dhuhr { background-image: url('dhuhr.jpg') !important; }
+.bg-asr { background-image: url('asr.jpg') !important; }
+.bg-maghrib { background-image: url('maghrib.jpg') !important; }
+.bg-isha { background-image: url('isha.jpg') !important; }
