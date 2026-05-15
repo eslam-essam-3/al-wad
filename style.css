@@ -198,3 +198,19 @@ select {
     line-height: 1;
     background: rgba(16, 185, 129, 0.1);
 }
+/* تنسيق المصحف لضمان اتصال الحروف على الموبايل */
+.quran-display {
+    font-family: 'Cairo', sans-serif !important;
+    direction: rtl;
+    text-align: center;
+    line-height: 2;
+    font-size: 1.5rem;
+    
+    /* الخصائص دي هي اللي هتشبك الحروف في بعضها */
+    white-space: normal;
+    word-wrap: break-word;
+    letter-spacing: 0 !important;
+    font-variant-ligatures: common-ligatures !important;
+    -webkit-font-feature-settings: "liga" 1, "kern" 1; /* للموبايلات الأيفون والأندرويد */
+    font-feature-settings: "liga" 1, "kern" 1;
+}
