@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مساعدالمسلم</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-dynamic">
     <div class="container">
         <header class="main-header">
-            <h2>صدقة جارية على روح المغفور لها بإذن الله</h2>
+            <h2>صدقة جارية على روح جدتى المغفور لها بإذن الله</h2>
             <h1> الحاجة / امباركة محمد عتمان</h1>
             <div id="clock" class="digital-clock">00:00:00</div>
             <p id="date-display">جاري تحميل التاريخ...</p>
-            <p class="signature">صُمم بواسطة إسلام عصام</p>
+            <p class="signature">تصميم إسلام عصام</p>
         </header>
 
         <main class="main-grid">
@@ -38,6 +40,7 @@
                 <h3>🤲 أدعية للمتوفاة</h3>
                 <div class="doa-container">
                     <p id="doa-text" class="doa-display">"اللهم اغفر لها وارحمها، وعافها واعف عنها، وأكرم نزلها، ووسع مدخلها، واغسلها بالماء والثلج والبرد."</p>
+                    <button class="copy-btn" onclick="copyText('doa-text', this)">نسخ الدعاء 📋</button>
                     <button class="btn-next-doa" onclick="nextDoa()">دعاء آخر</button>
                 </div>
             </section>
@@ -53,10 +56,13 @@
                     <p id="zekr-text">اختر نوع الأذكار للبدء</p>
                 </div>
                 <div class="azkar-controls">
-                    <button id="count-btn" class="btn-count" onclick="updateCount()">تسبيح (0)</button>
-                    <button id="next-btn" class="btn-next" onclick="nextZekr()">التالي</button>
-                </div>
-            </section>
+    <button class="copy-btn" onclick="copyText('zekr-text', this)">نسخ الذكر 📋</button>
+    <button id="count-btn" onclick="updateCount(this)" class="tasbih-btn">0 تسبيح</button>
+    
+    <button onclick="prevZekr()" class="btn-next" style="background: rgba(255,255,255,0.1);">السابق</button>
+    
+    <button id="next-btn" class="btn-next" onclick="nextZekr()">التالي</button>
+</div>
 
             <section class="card quran-section">
                 <h3>📖 المصحف الشريف</h3>
@@ -69,5 +75,14 @@
         </main>
     </div>
     <script src="script.js"></script>
-</body>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('التطبيق جاهز للعمل'))
+        .catch(err => console.log('فشل التسجيل:', err));
+    });
+  }
+</script>
+</script></body>
 </html>

@@ -218,3 +218,78 @@ body {
 .bg-asr { background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('asr.jpg') !important; }
 .bg-maghrib { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('maghrib.jpg') !important; }
 .bg-isha { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('isha.jpg') !important; }
+.copy-btn {
+    background: rgba(34, 197, 94, 0.2); /* لون أخضر شفاف */
+    border: 1px solid #22c55e;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    display: block;
+    width: fit-content;
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+.prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* هيعمل 3 أعمدة */
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.prayer-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.prayer-card span {
+    display: block;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.prayer-card strong {
+    display: block;
+    font-size: 16px;
+    color: #22c55e;
+    margin-top: 5px;
+}
+.prayer-card {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('maghrib.jpg'); /* حطينا طبقة غامقة عشان الكلام يبان */
+    background-size: cover;
+    background-position: center;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: white;
+}
+/* اللون الافتراضي للزراير */
+.tab-btn {
+    background-color: rgba(255, 255, 255, 0.1); /* لون هادي */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+/* اللون لما الزرار يكون نشط (Active) */
+.tab-btn.active {
+    background-color: #22c55e !important; /* اللون الأخضر بتاعك */
+    border-color: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+body.dark-mode {
+    background-color: #0f172a !important;
+    color: #ffffff;
+}
+body.dark-mode .card, body.dark-mode .prayer-card {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: #334155;
+}
