@@ -77,13 +77,12 @@ window.onload = () => {
     setInterval(updateClock, 1000);
     updateDate();
     
-    // فحص لو فيه إنترنت يشغل المواقيت والقرآن، لو مفيش يعرض كاش أو تنبيه خفيف
+    // بننادي الدالة علطول وهي هتتصرف لو فيه نت أو مفيش
+    updatePrayers();
+    
     if (navigator.onLine) {
-        updatePrayers();
         initQuranAndJuz();
     } else {
-        const prayerDiv = document.getElementById('prayer-times');
-        if (prayerDiv) prayerDiv.innerHTML = "<p style='color:var(--text-color); opacity:0.7;'>أنت تصفح التطبيق أوفلاين. المواقيت تتطلب إنترنت.</p>";
         const quranDisplay = document.getElementById('quranContent');
         if (quranDisplay) quranDisplay.innerText = "المصحف يتطلب اتصالاً بالإنترنت لعرض الآيات.";
     }
@@ -409,11 +408,9 @@ function updateGeneralTasbih(btn) {
 async function getPrayerTimes(lat = null, lng = null) {
     let url = '';
     
-    // لو لقط الموقع الفعلي للمستخدم هيجيب المواقيت بالإحداثيات بالظبط
     if (lat && lng) {
         url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=5`;
     } else {
-        // لو مفيش إذن موقع، هيشتغل افتراضي على الفيوم زي ما إنت عامل
         url = `https://api.aladhan.com/v1/timingsByCity?city=Fayoum&country=Egypt&method=5`;
     }
 
@@ -422,37 +419,54 @@ async function getPrayerTimes(lat = null, lng = null) {
         const data = await response.json();
         const timings = data.data.timings;
 
-        // أسماء الصلوات بالعربي اللي بنعرضها
-        const prayerNames = {
-            "Fajr": "الفجر",
-            "Sunrise": "الشروق",
-            "Dhuhr": "الظهر",
-            "Asr": "العصر",
-            "Maghrib": "المغرب",
-            "Isha": "العشاء"
-        };
+        // الحفظ في الذاكرة عشان لما يفصل نت نلاقيها موجودة
+        localStorage.setItem('lastCachedPrayers', JSON.stringify(timings));
 
-        const prayerDiv = document.getElementById('prayer-times');
-        prayerDiv.innerHTML = ''; // مسح كلمة "جاري التحميل"
+        // تشغيل دالة العرض على الشاشة
+        displayPrayers(timings);
 
-        // عرض الأوقات في الصفحة
+    } catch (error) {
+        console.error("خطأ في جلب المواقيت، محاولة عرض المواقيت المحفوظة:", error);
+        
+        // لو حصل خطأ (مفيش نت)، بنحاول نجيب آخر مواقيت متخزنة
+        const savedTimings = localStorage.getItem('lastCachedPrayers');
+        if (savedTimings) {
+            const timings = JSON.parse(savedTimings);
+            displayPrayers(timings);
+        } else {
+            document.getElementById('prayer-times').innerHTML = "<p>تتطلب مواقيت الصلاة اتصالاً بالإنترنت لأول مرة.</p>";
+        }
+    }
+}
+
+// دالة مساعدة جديدة عشان تعرض المواقيت في الـ HTML ومنكررش الكود
+function displayPrayers(timings) {
+    const prayerNames = {
+        "Fajr": "الفجر",
+        "Sunrise": "الشروق",
+        "Dhuhr": "الظهر",
+        "Asr": "العصر",
+        "Maghrib": "المغرب",
+        "Isha": "العشاء"
+    };
+
+    const prayerDiv = document.getElementById('prayer-times');
+    if (prayerDiv) {
+        prayerDiv.innerHTML = ''; 
         for (let key in prayerNames) {
+            let time = timings[key];
+            let time12 = typeof formatTime12 === "function" ? formatTime12(time) : time; 
             prayerDiv.innerHTML += `
                 <div class="prayer-card">
                     <span>${prayerNames[key]}</span>
-                    <strong>${timings[key]}</strong>
+                    <strong>${time12}</strong>
                 </div>
             `;
         }
-        
-        // تشغيل دالة فحص الخلفيات والتنبيهات بناءً على المواقيت الجديدة
-        if (typeof changeBackground === "function") changeBackground(timings);
-        if (typeof checkPrayerNotifications === "function") checkPrayerNotifications(timings);
-
-    } catch (error) {
-        console.error("خطأ في جلب المواقيت:", error);
-        document.getElementById('prayer-times').innerHTML = "<p>خطأ في الاتصال بالمواقيت</p>";
     }
+    
+    if (typeof changeBackground === "function") changeBackground(timings);
+    if (typeof checkPrayerNotifications === "function") checkPrayerNotifications(timings);
 }
 
 // تشغيل الوظيفة أول ما الموقع يفتح
