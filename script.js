@@ -575,12 +575,18 @@ function checkPrayerNotifications(times) {
         }
     }
 }
-// ==================== كود تشغيل المصحف كاملًا أوفلاين 100% ====================
+// ==================== كود تشغيل المصحف والأجزاء أوفلاين 100% ====================
 
-// دالة ذكية لجلب بيانات الـ 114 سورة كاملة بالرسم العثماني الحقيقي
+// مصفوفة لتحديد السور اللي بيبدأ منها كل جزء من الـ 30 جزء
+const juzToSurahMap = {
+    1: 1,   2: 2,   3: 2,   4: 3,   5: 4,   6: 4,   7: 5,   8: 6,   9: 7,   10: 8,
+    11: 9,  12: 11, 13: 12, 14: 15, 15: 17, 16: 18, 17: 21, 18: 23, 19: 25, 20: 27,
+    21: 29, 22: 33, 23: 36, 24: 39, 25: 41, 26: 46, 27: 51, 28: 58, 29: 67, 30: 78
+};
+
+// الدالة الذكية المضمونة لجلب بيانات الـ 114 سورة كاملة بالرسم العثماني
 async function getFullOfflineQuran() {
     try {
-        // الرابط المباشر للمصحف الشريف كاملًا
         const response = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
         const data = await response.json();
         
@@ -593,36 +599,53 @@ async function getFullOfflineQuran() {
         });
         return quranData;
     } catch (e) {
-        console.log("نت مقطوع، جاري التحويل للنظام الاحتياطي المدمج...");
+        console.log("النت مقطوع، يتم الاعتماد على الذاكرة المحلية المخزنة.");
         return null;
     }
 }
 
 function initQuranAndJuz() {
     const sSelect = document.getElementById('surahSelect');
+    const jSelect = document.getElementById('juzSelect'); // قائمة الأجزاء
     const display = document.getElementById('quranContent');
     if (!sSelect || !display) return;
 
-    // أسماء الـ 114 سورة كاملة عشان القائمة تفتح أوفلاين فورًا بدون نت
+    // أسماء الـ 114 سورة كاملة للقائمة
     const allSurahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
 
-    // 1. املأ القائمة بالـ 114 سورة فورًا
+    // 1. ملء قائمة الـ 114 سورة فوراً
     sSelect.innerHTML = '<option value="">اختر السورة...</option>';
     allSurahs.forEach((name, index) => {
         sSelect.add(new Option(`سورة ${name}`, index + 1));
     });
 
-    // 2. أول ما يفتح والنت موجود يسحب المصحف كله ويشيله عنده في الذاكرة الحية
+    // 2. ملء قائمة الأجزاء الـ 30 لو الـ ID موجود في الـ HTML
+    if (jSelect) {
+        jSelect.innerHTML = '<option value="">اختر الجزء...</option>';
+        for (let i = 1; i <= 30; i++) {
+            jSelect.add(new Option(`الجزء ${i}`, i));
+        }
+
+        // عند اختيار جزء، يحول قائمة السور على أول سورة في هذا الجزء تلقائياً
+        jSelect.onchange = () => {
+            const juzId = jSelect.value;
+            if (juzId && juzToSurahMap[juzId]) {
+                sSelect.value = juzToSurahMap[juzId];
+                sSelect.dispatchEvent(new Event('change')); // تفعيل عرض السورة فوراً
+            }
+        };
+    }
+
+    // 3. جلب وتخزين المصحف كاملًا في الخلفية أول ما يفتح بالنت
     let cachedQuran = null;
     getFullOfflineQuran().then(data => {
         if (data) {
             cachedQuran = data;
-            // حفظ نسخة احتياطية صلبة
             localStorage.setItem('local_quran_backup', JSON.stringify(data));
         }
     });
 
-    // 3. عند اختيار السورة (أوفلاين أو أونلاين)
+    // 4. دالة عرض الآيات عند تغيير السورة (أونلاين أو أوفلاين)
     sSelect.onchange = () => {
         const surahId = sSelect.value;
         if (!surahId) {
@@ -630,7 +653,6 @@ function initQuranAndJuz() {
             return;
         }
 
-        // تحضير الداتا سواء من الذاكرة الحية أو الكاش الصلب
         const localBackup = localStorage.getItem('local_quran_backup');
         const activeData = cachedQuran || (localBackup ? JSON.parse(localBackup) : null);
 
@@ -640,11 +662,10 @@ function initQuranAndJuz() {
                 return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${index + 1})</span>`;
             }).join(' ');
         } else {
-            // حل الطوارئ الذكي: لو السورة مش متسيفة والنت مقطوع، هيعرض السور الأساسية فورًا
             display.innerHTML = '<p style="text-align:center; color:#ff7675;">برجاء فتح الإنترنت لمرة واحدة فقط لتفعيل الـ 114 سورة أوفلاين بالكامل.</p>';
         }
     };
 }
 
-// تشغيل الدالة مع تحميل الصفحة بأمان
+// تشغيل السكريبت مع تحميل الصفحة
 window.addEventListener('load', initQuranAndJuz);
