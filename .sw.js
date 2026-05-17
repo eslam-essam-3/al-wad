@@ -33,16 +33,26 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// استراتيجية جلب البيانات وتشغيل الأوفلاين
+// استراتيجية جلب البيانات وتشغيل الأوفلاين الصحيحة
 self.addEventListener('fetch', (e) => {
-  // تجاهل طلبات الـ APIs الخارجية عشان متضربش في الكاش
+  // لو الطلب رايح لـ APIs خارجية، خليه يروح للنت علطول وميدخلش جوه الكاش
   if (e.request.url.includes('aladhan.com') || e.request.url.includes('alquran.cloud')) {
+    e.respondWith(fetch(e.request).catch(() => {
+      // لو النت مقطوع والـ API اطلبت، يرجع رد فاضي عشان الأبلكيشن ميهنجش
+      return new Response(JSON.stringify({ error: "Offline" }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }));
     return;
   }
 
+  // للملفات الأساسية للموقع (HTML, CSS, JS): اسحب من الكاش فورًا لو متوفر، عشان يفتح أوفلاين طلقة
   e.respondWith(
-    fetch(e.request).catch(() => {
-      return caches.match(e.request);
+    caches.match(e.request).then((cachedResponse) => {
+      if (cachedResponse) {
+        return cachedResponse; // لو الملف في الكاش افتحه فورًا
+      }
+      return fetch(e.request); // لو مش في الكاش روحي هاتيه من النت
     })
   );
 });
