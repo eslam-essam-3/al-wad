@@ -369,15 +369,21 @@ function updateDoaUI() {
 // 6. القرآن الكريم (سور وأجزاء)
 async function initQuranAndJuz() {
     const sSelect = document.getElementById('surahSelect');
-    const display = document.getElementById('quranContent');
+    const display = document.getElementById('quranContent'); // اتأكد إن ده الـ ID بتاع تيكست عرض الآيات عندك
     if (!sSelect || !display) return;
 
-    // 1. لو المصحف محفوظ عندك في المتصفح أوفلاين.. اقرأ منه علطول
-    let quranData = JSON.parse(localStorage.getItem('offline_quran_data'));
-
-    // 2. لو مش محفوظ (أول مرة تفتح الموقع بس)، هاته من السيرفر الرسمي كامل بالتشكيل
+    // 1. محاولة قراءة المصحف من الذاكرة المحلية أوفلاين
+    let quranData = null;
+    try {
+        const saved = localStorage.getItem('offline_quran_data');
+        if (saved) quranData = JSON.parse(saved);
+    } catch (e) {
+        console.error("خطأ في قراءة الذاكرة المحلية", e);
+    }
+    
+    // 2. لو مش متخزن (أول مرة فتح للموقع)، هنجيبه من الـ API بالنت
     if (!quranData) {
-        display.innerText = "جاري تحميل المصحف الشريف كاملًا بالتشكيل لأول مرة... ثواني من فضلك";
+        display.innerText = "جاري تحميل المصحف الشريف لأول مرة لتشغيله أوفلاين... برجاء الانتظار ثواني";
         try {
             const res = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
             const data = await res.json();
@@ -389,28 +395,35 @@ async function initQuranAndJuz() {
                     verses: surah.ayahs.map(ayah => ayah.text)
                 };
             });
-            // احفظه في المتصفح للأبد عشان يشتغل وأنت قاطع نت
+
+            // حفظ المصحف كامل في الذاكرة للأبد عشان يشتغل أوفلاين بعد كده
             localStorage.setItem('offline_quran_data', JSON.stringify(quranData));
         } catch (err) {
-            display.innerText = "برجاء تشغيل الإنترنت لأول مرة فقط لتحميل آيات المصحف.";
+            display.innerText = "المصحف يتطلب اتصالاً بالإنترنت لأول مرة فقط لعرض الآيات وحفظها أوفلاين.";
+            console.error(err);
             return;
         }
     }
 
-    // 3. حط الـ 114 سورة كاملين في الـ Select
+    // 3. تعبئة قائمة السور (114 سورة كاملة)
     sSelect.innerHTML = '<option value="">اختر السورة...</option>';
     for (let id in quranData) {
         sSelect.add(new Option(quranData[id].name, id));
     }
 
-    // 4. لما تختار السورة، يعرض آياتها كاملة بالتشكيل الصحيح للآيفون والكمبيوتر
+    // 4. عند اختيار سورة، يتم عرضها كاملة بالتشكيل
     sSelect.onchange = () => {
         const surahId = sSelect.value;
-        if (!surahId) { display.innerText = "الرجاء اختيار سورة."; return; }
-        
-        if (quranData[surahId]) {
-            display.innerHTML = quranData[surahId].verses.map((text, i) => {
-                return `${text} <span class="verse-num">(${i + 1})</span>`;
+        if (!surahId) {
+            display.innerText = "الرجاء اختيار سورة لعرض الآيات.";
+            return;
+        }
+
+        const surah = quranData[surahId];
+        if (surah) {
+            // عرض الآيات متصلة وبينها أرقام الآيات بشكل شيك جداً
+            display.innerHTML = surah.verses.map((text, index) => {
+                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${index + 1})</span>`;
             }).join(' ');
         }
     };
