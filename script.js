@@ -372,62 +372,59 @@ async function initQuranAndJuz() {
     const display = document.getElementById('quranContent');
     if (!sSelect || !display) return;
 
-    let quranData = null;
+    // أسماء الـ 114 سورة بالترتيب عشان تظهر في القائمة فوراً أونلاين وأوفلاين بدون نت
+    const surahNames = [
+        "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
+    ];
 
-    try {
-        // 1. قراءة البيانات المخزنة من المتصفح
-        const savedQuran = localStorage.getItem('offline_quran_data');
-        if (savedQuran && savedQuran !== "undefined") {
-            quranData = JSON.parse(savedQuran);
-        }
-    } catch (e) {
-        console.error("فشل في قراءة الذاكرة المحلية:", e);
-    }
-
-    // 2. لو مفيش بيانات أوفلاين، اسحبها من النت واحفظها فوراً
-    if (!quranData) {
-        try {
-            const res = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
-            const data = await res.json();
-            
-            quranData = {};
-            data.data.surahs.forEach(surah => {
-                quranData[surah.number] = {
-                    name: `سورة ${surah.name}`,
-                    verses: surah.ayahs.map(ayah => ayah.text)
-                };
-            });
-
-            // الخطوة السحرية: حفظ البيانات في المتصفح للأبد
-            localStorage.setItem('offline_quran_data', JSON.stringify(quranData));
-            
-        } catch (err) {
-            // لو مفيش نت ومفيش داتا متسيفة قبل كده هيديك الرسالة اللي في الصورة عندك
-            display.innerHTML = '<p style="text-align:center; direction:rtl;">المصحف يتطلب اتصالاً بالإنترنت لأول مرة فقط لعرض الآيات.</p>';
-            console.error(err);
-            return;
-        }
-    }
-
-    // 3. تعبئة السور (شغالة معاك أونلاين وأوفلاين خلاص)
+    // تعبئة القائمة بالـ 114 سورة فوراً
     sSelect.innerHTML = '<option value="">اختر السورة...</option>';
-    for (let id in quranData) {
-        sSelect.add(new Option(quranData[id].name, id));
-    }
+    surahNames.forEach((name, index) => {
+        sSelect.add(new Option(`سورة ${name}`, index + 1));
+    });
 
-    // 4. تشغيل العرض عند الاختيار
-    sSelect.onchange = () => {
+    // عند اختيار السورة
+    sSelect.onchange = async () => {
         const surahId = sSelect.value;
         if (!surahId) {
             display.innerText = "الرجاء اختيار سورة لعرض الآيات.";
             return;
         }
 
-        const surah = quranData[surahId];
-        if (surah) {
-            display.innerHTML = surah.verses.map((text, index) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${index + 1})</span>`;
+        // 1. جلب السورة من الذاكرة المحلية (لو فتحتها قبل كده أوفلاين)
+        const localKey = `quran_surah_${surahId}`;
+        const savedSurah = localStorage.getItem(localKey);
+
+        if (savedSurah) {
+            const surahData = JSON.parse(savedSurah);
+            display.innerHTML = surahData.verses.map((text, i) => {
+                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
             }).join(' ');
+            return;
+        }
+
+        // 2. لو مش متسيفة، نجبها من السيرفر بالنت ونعرضها ونحفظها هي لوحدها
+        display.innerText = "جاري تحميل السورة بالتشكيل الحقيقي... ثواني";
+        try {
+            const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/quran-uthmani`);
+            const data = await res.json();
+            
+            const surahData = {
+                name: data.data.name,
+                verses: data.data.ayahs.map(ayah => ayah.text)
+            };
+
+            // حفظ السورة دي لوحدها في المتصفح عشان تشتغل أوفلاين بعد كده
+            localStorage.setItem(localKey, JSON.stringify(surahData));
+
+            // عرض الآيات
+            display.innerHTML = surahData.verses.map((text, i) => {
+                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
+            }).join(' ');
+
+        } catch (err) {
+            display.innerHTML = '<p style="text-align:center; color:#ff7675;">هذه السورة غير محملة أوفلاين وتتطلب اتصالاً بالإنترنت لفتحها لأول مرة.</p>';
+            console.error(err);
         }
     };
 }
