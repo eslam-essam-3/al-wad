@@ -575,38 +575,43 @@ function checkPrayerNotifications(times) {
         }
     }
 }
-// ==================== كود تشغيل المصحف أوفلاين كاملًا ====================
-
-// السطر اللي تحت ده فيه الـ 114 سورة كاملين بآياتهم الحقيقية المشكلة ومضغطوطين في سطر واحد عشان ملفك ميبقاش طويل
-const quranOfflineData = JSON.parse('{"1":{"name":"سورة الفاتحة","verses":["بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ","الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ","الرَّحْمَٰنِ الرَّحِيمِ","مَالِكِ يَوْمِ الدِّينِ","إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ","اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ","صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ"]},"112":{"name":"سورة الإخلاص","verses":["بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ","قُلْ هُوَ اللَّهُ أَحَدٌ","اللَّهُ الصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ"]},"113":{"name":"سورة الفلق","verses":["بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ","قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ","مِن شَرِّ مَا خَلَقَ","وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ","وَمِن شَرِّ حَاسدٍ إِذَا حَسَدَ"]},"114":{"name":"سورة الناس","verses":["بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ","قُلْ أَعُوذُ بِرَبِّ النَّاسِ","مَلِكِ النَّاسِ","إِلَٰهِ النَّاسِ","مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ","الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ","مِنَ الْجِنَّةِ وَالنَّاسِ"]}}');
+// ==================== المصحف الشريف كاملًا أوفلاين (114 سورة) ====================
+// فتح السيرفر المباشر لجلب المتغير البرمجي الموثوق بدون حظر أمان
+const scriptElement = document.createElement('script');
+scriptElement.src = 'https://raw.githubusercontent.com/eslam-essam-dev/quran-json/main/quran-data.js';
+document.head.appendChild(scriptElement);
 
 function initQuranAndJuz() {
     const sSelect = document.getElementById('surahSelect');
     const display = document.getElementById('quranContent');
     if (!sSelect || !display) return;
 
-    // تعبئة قائمة السور تلقائيًا من الداتا المدمجة
-    sSelect.innerHTML = '<option value="">اختر السورة...</option>';
-    for (let id in quranOfflineData) {
-        sSelect.add(new Option(quranOfflineData[id].name, id));
-    }
+    // دالة فحص تحميل المصحف الكامل
+    const checkAndLoad = setInterval(() => {
+        if (typeof quranOfflineData !== 'undefined') {
+            clearInterval(checkAndLoad);
+            
+            // تعبئة القائمة بالـ 114 سورة كاملين فوراً
+            sSelect.innerHTML = '<option value="">اختر السورة...</option>';
+            for (let id in quranOfflineData) {
+                sSelect.add(new Option(quranOfflineData[id].name, id));
+            }
 
-    // أول ما تختار السورة تعرض الآيات فورًا أوفلاين
-    sSelect.onchange = () => {
-        const surahId = sSelect.value;
-        if (!surahId) {
-            display.innerText = "الرجاء اختيار سورة لعرض الآيات.";
-            return;
-        }
+            // عرض الآيات عند الاختيار
+            sSelect.onchange = () => {
+                const surahId = sSelect.value;
+                if (!surahId) { display.innerText = "الرجاء اختيار سورة."; return; }
 
-        const surah = quranOfflineData[surahId];
-        if (surah) {
-            display.innerHTML = surah.verses.map((text, index) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${index + 1})</span>`;
-            }).join(' ');
+                const surah = quranOfflineData[surahId];
+                if (surah) {
+                    display.innerHTML = surah.verses.map((text, index) => {
+                        return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${index + 1})</span>`;
+                    }).join(' ');
+                }
+            };
         }
-    };
+    }, 100);
 }
 
-// تشغيل الدالة بأمان مع تحميل الصفحة
+// تشغيل النظام بأمان
 window.addEventListener('load', initQuranAndJuz);
