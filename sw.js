@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-v100';
+const CACHE_NAME = 'azkar-v101';
 const ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,6 @@ const ASSETS = [
   './icon.jpg'
 ];
 
-// تثبيت السيرفس وركر وحفظ الملفات الأساسية
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -17,7 +16,6 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// تفعيل السيرفس وركر وتنظيف الكاش القديم
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -28,16 +26,12 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// استراتيجية جلب البيانات (القرآن والأذان والكود أوفلاين)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
-      // لو الملف متسيف في الكاش افتحه فورًا أوفلاين
       if (cachedResponse) {
         return cachedResponse;
       }
-
-      // لو مش في الكاش والنت شغال، روحي هاتي البيانات وسيفيها للمرات الجاية
       return fetch(e.request).then((networkResponse) => {
         if (networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
@@ -45,7 +39,6 @@ self.addEventListener('fetch', (e) => {
         }
         return networkResponse;
       }).catch(() => {
-        // لو مفيش نت خالص والملف مش متكش، يرجع رد فاضي وميهنجش الأبلكيشن
         return new Response(JSON.stringify({ offline: true }), { headers: { 'Content-Type': 'application/json' } });
       });
     })
