@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعدالمسلم</title>
+    <title>مساعد المسلم</title>
+    
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri+Quran&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script src="./quran-data.js"></script>
+    <script src="./script.js"></script>
 </head>
 <body class="bg-dynamic">
     <div class="container">
@@ -57,7 +63,7 @@
                 </div>
                 <div class="azkar-controls">
     <button class="copy-btn" onclick="copyText('zekr-text', this)">نسخ الذكر 📋</button>
-    <button id="count-btn" onclick="updateCount(this)" class="tasbih-btn">0 تسبيح</button>
+    <button id="count-btn" onclick="updateAzkarCount(this)">0 تسبيح</button>
     
     <button onclick="prevZekr()" class="btn-next" style="background: rgba(255,255,255,0.1);">السابق</button>
     
@@ -74,7 +80,7 @@
             </section>
         </main>
     </div>
-    <script src="script.js"></script>
+    
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

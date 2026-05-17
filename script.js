@@ -70,9 +70,17 @@ const azkarData = {
 let currentAzkarList = azkarData.sabah;
 let zekrIndex = 0;
 let doaIndex = 0;
+// حفظ مكان العناصر في الذاكرة لسرعة الاستجابة
+let zekrDisplayElement = null;
+let countBtnElement = null;
+let doaDisplayElement = null;
 
 // --- 1. تشغيل التطبيق عند التحميل (الـ Refresh) ---
 window.onload = () => {
+    // كاش للعناصر عشان العداد ميعلقش
+    zekrDisplayElement = document.getElementById('zekr-text');
+    countBtnElement = document.getElementById('count-btn');
+    doaDisplayElement = document.getElementById('doa-text');
     updateClock();
     setInterval(updateClock, 1000);
     updateDate();
@@ -103,16 +111,35 @@ window.onload = () => {
 function updateZekrUI() {
     const currentZekr = currentAzkarList[zekrIndex];
     const zekrDisplay = document.getElementById('zekr-text');
-    const countBtn = document.getElementById('count-btn');
+    const countBtn = document.getElementById('count-btn'); 
 
     if (zekrDisplay) zekrDisplay.innerText = currentZekr;
 
     if (countBtn) {
         // بنجيب القيمة المتخزنة باسم الذكر ده بالظبط من الذاكرة
-        // لو مش موجودة (أول مرة) بيحط 0
+        // لو ملوش عد قديم (أول مرة يفتح) بيظهر 0 تلقائياً ويبدأ من الصفر
         const savedCount = localStorage.getItem('tasbih_' + currentZekr) || 0;
         countBtn.innerText = savedCount + " تسبيح";
     }
+}
+function updateAzkarCount(btn) {
+    const zekrDisplay = document.getElementById('zekr-text');
+    if (!zekrDisplay) return;
+
+    const zekrText = zekrDisplay.innerText; // مسكنا النص بتاع الذكر أو الدعاء الحالي
+    
+    // بنطلع الرقم الحالي المكتوب على الزرار ونزوده 1
+    let current = parseInt(btn.innerText.replace(/[^0-9]/g, '')) || 0;
+    let newValue = current + 1;
+    
+    // تحديث الرقم على الشاشة فوراً
+    btn.innerText = newValue + " تسبيح";
+
+    // حفظ العداد في الذاكرة باسم الذكر ده هو بس عشان يفضل منفصل عن الباقي
+    localStorage.setItem('tasbih_' + zekrText, newValue);
+
+    // هزة خفيفة للموبايل
+    if (navigator.vibrate) navigator.vibrate(50);
 }
 // دالة لفحص المواقيت وإرسال تنبيه في وقت الأذان
 function checkPrayerNotifications(times) {
@@ -342,36 +369,51 @@ function updateDoaUI() {
 // 6. القرآن الكريم (سور وأجزاء)
 async function initQuranAndJuz() {
     const sSelect = document.getElementById('surahSelect');
-    const jSelect = document.getElementById('juzSelect');
     const display = document.getElementById('quranContent');
+    if (!sSelect || !display) return;
 
-    // تحميل السور
-    try {
-        const resS = await fetch('https://api.alquran.cloud/v1/surah');
-        const dataS = await resS.json();
-        dataS.data.forEach(s => sSelect.add(new Option(s.name, s.number)));
-        
-        // تحميل الأجزاء (30 جزء)
-        for (let i = 1; i <= 30; i++) {
-            jSelect.add(new Option(`الجزء ${i}`, i));
+    // 1. لو المصحف محفوظ عندك في المتصفح أوفلاين.. اقرأ منه علطول
+    let quranData = JSON.parse(localStorage.getItem('offline_quran_data'));
+
+    // 2. لو مش محفوظ (أول مرة تفتح الموقع بس)، هاته من السيرفر الرسمي كامل بالتشكيل
+    if (!quranData) {
+        display.innerText = "جاري تحميل المصحف الشريف كاملًا بالتشكيل لأول مرة... ثواني من فضلك";
+        try {
+            const res = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
+            const data = await res.json();
+            
+            quranData = {};
+            data.data.surahs.forEach(surah => {
+                quranData[surah.number] = {
+                    name: `سورة ${surah.name}`,
+                    verses: surah.ayahs.map(ayah => ayah.text)
+                };
+            });
+            // احفظه في المتصفح للأبد عشان يشتغل وأنت قاطع نت
+            localStorage.setItem('offline_quran_data', JSON.stringify(quranData));
+        } catch (err) {
+            display.innerText = "برجاء تشغيل الإنترنت لأول مرة فقط لتحميل آيات المصحف.";
+            return;
         }
+    }
 
-        sSelect.onchange = async () => {
-            if(!sSelect.value) return;
-            display.innerText = "جاري تحميل السورة...";
-            const res = await fetch(`https://api.alquran.cloud/v1/surah/${sSelect.value}`);
-            const data = await res.json();
-            display.innerHTML = data.data.ayahs.map(a => `${a.text} <span class="verse-num">(${a.numberInSurah})</span>`).join(' ');
-        };
+    // 3. حط الـ 114 سورة كاملين في الـ Select
+    sSelect.innerHTML = '<option value="">اختر السورة...</option>';
+    for (let id in quranData) {
+        sSelect.add(new Option(quranData[id].name, id));
+    }
 
-        jSelect.onchange = async () => {
-            if(!jSelect.value) return;
-            display.innerText = "جاري تحميل الجزء...";
-            const res = await fetch(`https://api.alquran.cloud/v1/juz/${jSelect.value}/quran-uthmani`);
-            const data = await res.json();
-            display.innerHTML = data.data.ayahs.map(a => `${a.text} <span class="verse-num">(${a.surah.name})</span>`).join(' ');
-        };
-    } catch(e) { display.innerText = "خطأ في الاتصال بالمصحف."; }
+    // 4. لما تختار السورة، يعرض آياتها كاملة بالتشكيل الصحيح للآيفون والكمبيوتر
+    sSelect.onchange = () => {
+        const surahId = sSelect.value;
+        if (!surahId) { display.innerText = "الرجاء اختيار سورة."; return; }
+        
+        if (quranData[surahId]) {
+            display.innerHTML = quranData[surahId].verses.map((text, i) => {
+                return `${text} <span class="verse-num">(${i + 1})</span>`;
+            }).join(' ');
+        }
+    };
 }
 // وظيفة النسخ الذكية
 function copyText(elementId, btn) {

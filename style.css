@@ -15,7 +15,10 @@ body {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    transition: background-image 1s ease-in-out;
+    body {
+    /* بدل transition: all 0.3s; */
+    transition: background-color 0.3s ease, color 0.3s ease, background-image 0.5s ease;
+}
     background-color: #0f172a; 
 }
 
@@ -292,4 +295,25 @@ body.dark-mode {
 body.dark-mode .card, body.dark-mode .prayer-card {
     background: rgba(30, 41, 59, 0.9);
     border-color: #334155;
+}
+/* تنسيق خاص لحل مشكلة الحروف المتفرقة في الآيفون وتجميل الخط */
+#quranContent {
+    font-family: 'Amiri Quran', 'Me Quran', 'Traditional Arabic', serif !important;
+    font-size: 24px !important;
+    line-height: 2.2 !important;
+    text-align: justify;
+    text-align-last: center;
+    direction: rtl;
+    padding: 15px;
+    /* حل مشكلة أجهزة أبل في معالجة النصوص العربية المشكلة */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+.verse-num {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #22c55e;
+    margin: 0 5px;
+    font-weight: bold;
 }

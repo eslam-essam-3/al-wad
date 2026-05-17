@@ -4,6 +4,7 @@ const ASSETS = [
   './index.html',
   './style.css',
   './script.js',
+  './quran-data.js', // ضفناه هنا عشان يتحفظ أوفلاين
   './manifest.json',
   './icon.jpg'
 ];
