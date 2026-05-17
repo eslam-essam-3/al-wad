@@ -82,13 +82,15 @@
     </div>
     
 <script>
-  if ('serviceWorker' in navigator) {
+  // كود التسجيل الصحيح المتوافق مع GitHub Pages
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('التطبيق جاهز للعمل'))
-        .catch(err => console.log('فشل التسجيل:', err));
+        // شيلنا الشرطة المائلة اللي في الأول عشان يقرأ من الفولدر الحالي للمشروع
+        navigator.serviceWorker.register('sw.js')
+            .then((reg) => console.log('تم تسجيل نظام الأوفلاين بنجاح!', reg))
+            .catch((err) => console.log('فشل التسجيل بسبب:', err));
     });
-  }
+}
 </script>
 </script></body>
 </html>
