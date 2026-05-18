@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-v101';
+const CACHE_NAME = 'azkar-v102';
 const ASSETS = [
   './',
   './index.html',
@@ -44,3 +44,33 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+let dynamicPrayerTimes = {}; // مصفوفة فاضية هتستقبل المواعيد المتغيرة
+
+// الاستماع للمواعيد المرسلة من واجهة الموقع وتحديثها فوراً
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'UPDATE_PRAYER_TIMES') {
+        dynamicPrayerTimes = event.data.times;
+        console.log("تم تحديث مواقيت الصلاة في الخلفية بنجاح:", dynamicPrayerTimes);
+    }
+});
+
+// فحص الوقت الحالي ومقارنته بالمواقيت المتحدثة
+setInterval(() => {
+    const now = new Date();
+    const currentTime = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+    // الفحص مش هيشتغل إلا لو الواجهة بعتت المواعيد فعلاً
+    for (const [prayerName, prayerTime] of Object.entries(dynamicPrayerTimes)) {
+        if (currentTime === prayerTime) {
+            
+            self.registration.showNotification("مواقيت الصلاة", {
+                body: `حان الآن موعد أذان ${prayerName} حسب التوقيت المحلي`,
+                icon: 'icon.jpg',
+                vibrate: [500, 110, 500, 110, 450, 110, 200, 110, 170, 40],
+                tag: `prayer-${prayerName}-${currentTime}`,
+                requireInteraction: true
+            });
+            
+        }
+    }
+}, 60000);

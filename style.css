@@ -144,7 +144,23 @@ body {
     font-weight: bold;
     transition: 0.3s;
 }
-.btn-count { background: #1e293b; color: white; border: 1px solid var(--accent); }
+/* تنسيق زرار العداد الجديد */
+.btn-count {
+    border-radius: 50px !important; /* هيخلي الحواف دائرية وشكله انسيابي */
+    padding: 10px 25px !important;
+    background: linear-gradient(145deg, #22c55e, #16a34a) !important; /* تدرج أخضر */
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3) !important;
+    transition: all 0.3s ease !important;
+    font-weight: bold !important;
+    color: white !important;
+    flex: 1; /* عشان يحافظ على مكانه في الصف */
+}
+
+.btn-count:active {
+    transform: scale(0.95) !important; /* تأثير الضغط بالصابع */
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2) !important;
+}
 .btn-next { background: var(--accent); color: white; }
 
 .btn-next-doa {
