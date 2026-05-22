@@ -138,24 +138,57 @@ window.onload = () => {
     updateDoaUI();
 
     if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+    document.body.classList.add('dark-mode');
     }
 
     if ("Notification" in window) {
-        Notification.requestPermission();
-    // تصفير العداد أول ما يفتح الموقع من جديد
+    Notification.requestPermission();
+    // طلب إذن الإشعارات أول ما يفتح التطبيق
+    if ("Notification" in window) {
+    Notification.requestPermission();
+    }
+    // تشغيل فحص مواقيت الصلاة كل دقيقة
+    setInterval(checkPrayerNotifications, 60000);
+    // تصفير العداد أول ما يفتح الموقع من جديد 
     zekrCounter = 0; 
-    
-    // تحديث الرقم اللي ظاهر على الزرار لصفر
+    // حط السطر ده في نهاية window.onload
+    displayCurrentDayPlan();
+    // تحديث الرقم اللي ظاهر على الزرار لصفر 
     if (countBtnElement) {
-        countBtnElement.innerText = '0'; 
+        // يفضل تخليها '0 تسبيح' عشان تماشي شكل التصميم بتاعك //
+        countBtnElement.innerText = '0 تسبيح'; 
     }
     
-    // تحديث الواجهة عشان كل حاجة تصفر
+    // أهم سطر: تحديث الواجهة عشان الصفر يظهر فوراً
     updateZekrUI();
     }
 };
-
+async function shareZekr() {
+    const zekrText = document.getElementById('zekr-text').innerText;
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'أذكار المسلم',
+                text: `${zekrText}\n\nتمت المشاركة من تطبيق أذكار المسلم - تصميم إسلام عصام`,
+                url: window.location.href
+            });
+        } catch (err) { console.log(err); }
+    } else {
+        navigator.clipboard.writeText(zekrText);
+        alert("تم نسخ الذكر بنجاح!");
+    }
+}
+function setKhatmaPlan(days) {
+    const pagesPerDay = Math.ceil(604 / days);
+    const msg = `عشان تختم في ${days} يوم، اقرأ ${pagesPerDay} صفحات يومياً (حوالي ${Math.ceil(pagesPerDay/5)} صفحات بعد كل صلاة).`;
+    
+    // إحنا بنعرض الرسالة مكان "اختر لبدء القراءة"
+    const quranContent = document.getElementById('quranContent');
+    if (quranContent) {
+        quranContent.innerText = msg;
+        quranContent.style.color = "var(--accent)"; // هيخلي لون الكلام أخضر زي تصميمك
+    }
+}
 // --- 2. وظيفة تحديث واجهة الذكر (عشان الفصل) ---
 function updateZekrUI() {
     const currentZekr = currentAzkarList[zekrIndex];
@@ -394,17 +427,18 @@ function prevZekr() {
     updateZekrUI();
 }
 
+// استبدل الدالة القديمة بهذه الدالة (لجعل العداد يصفر عند فتح الموقع)
 function updateZekrUI() {
     const currentZekr = currentAzkarList[zekrIndex];
     const zekrDisplay = document.getElementById('zekr-text');
-    const countBtn = document.getElementById('count-btn'); // تأكد إن ده الـ ID في الـ HTML
+    const countBtn = document.getElementById('count-btn'); 
 
     if (zekrDisplay) zekrDisplay.innerText = currentZekr;
 
     if (countBtn) {
-        // بنجيب القيمة المتخزنة باسم الذكر ده بالظبط
-        const savedCount = localStorage.getItem('tasbih_' + currentZekr) || 0;
-        countBtn.innerText = savedCount + " تسبيح";
+        // بدلاً من localStorage، بنحط 0 مباشرة
+        // وبكده كل ما تفتح الموقع، العداد هيبدأ من صفر
+        countBtn.innerText = "0 تسبيح"; 
     }
 }
 
@@ -423,61 +457,52 @@ async function initQuranAndJuz() {
     const display = document.getElementById('quranContent');
     if (!sSelect || !display) return;
 
-    // أسماء الـ 114 سورة بالترتيب عشان تظهر في القائمة فوراً أونلاين وأوفلاين بدون نت
-    const surahNames = [
-        "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
-    ];
+    // أسماء السور
+    const allSurahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
 
-    // تعبئة القائمة بالـ 114 سورة فوراً
     sSelect.innerHTML = '<option value="">اختر السورة...</option>';
-    surahNames.forEach((name, index) => {
+    allSurahs.forEach((name, index) => {
         sSelect.add(new Option(`سورة ${name}`, index + 1));
     });
 
-    // عند اختيار السورة
     sSelect.onchange = async () => {
         const surahId = sSelect.value;
-        if (!surahId) {
-            display.innerText = "الرجاء اختيار سورة لعرض الآيات.";
+        if (!surahId) return;
+
+        // 1. فحص الذاكرة أولاً (هل السورة دي متخزنة قبل كده؟)
+        const cachedSurah = localStorage.getItem(`surah_${surahId}`);
+        if (cachedSurah) {
+            displaySurah(JSON.parse(cachedSurah), display);
             return;
         }
 
-        // 1. جلب السورة من الذاكرة المحلية (لو فتحتها قبل كده أوفلاين)
-        const localKey = `quran_surah_${surahId}`;
-        const savedSurah = localStorage.getItem(localKey);
-
-        if (savedSurah) {
-            const surahData = JSON.parse(savedSurah);
-            display.innerHTML = surahData.verses.map((text, i) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
-            }).join(' ');
-            return;
-        }
-
-        // 2. لو مش متسيفة، نجبها من السيرفر بالنت ونعرضها ونحفظها هي لوحدها
-        display.innerText = "جاري تحميل السورة بالتشكيل الحقيقي... ثواني";
+        // 2. لو مش موجودة، نحاول نحملها
+        display.innerHTML = '<p style="text-align:center; color:#2ecc71;">جاري التحميل...</p>';
+        
         try {
             const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahId}/quran-uthmani`);
             const data = await res.json();
-            
             const surahData = {
                 name: data.data.name,
                 verses: data.data.ayahs.map(ayah => ayah.text)
             };
 
-            // حفظ السورة دي لوحدها في المتصفح عشان تشتغل أوفلاين بعد كده
-            localStorage.setItem(localKey, JSON.stringify(surahData));
-
-            // عرض الآيات
-            display.innerHTML = surahData.verses.map((text, i) => {
-                return `${text} <span class="verse-num" style="color: #2ecc71; font-weight: bold;">(${i + 1})</span>`;
-            }).join(' ');
+            // 3. حفظها في الذاكرة للأبد (عشان تفتح أوفلاين)
+            localStorage.setItem(`surah_${surahId}`, JSON.stringify(surahData));
+            displaySurah(surahData, display);
 
         } catch (err) {
-            display.innerHTML = '<p style="text-align:center; color:#ff7675;">هذه السورة غير محملة أوفلاين وتتطلب اتصالاً بالإنترنت لفتحها لأول مرة.</p>';
-            console.error(err);
+            display.innerHTML = '<p style="text-align:center; color:#ff7675;">عذراً، تحتاج للاتصال بالإنترنت لتحميل هذه السورة لأول مرة فقط.</p>';
         }
     };
+}
+
+// دالة مساعدة لعرض الآيات بشكل جميل
+function displaySurah(surahData, displayElement) {
+    displayElement.innerHTML = `<h2 style="text-align:center; color:#2ecc71;">${surahData.name}</h2>` + 
+        surahData.verses.map((text, i) => {
+            return `<span style="font-size: 1.3rem; line-height: 2.2;"> ${text} <b style="color:#2ecc71;">(${i + 1})</b> </span>`;
+        }).join(' ');
 }
 // وظيفة النسخ الذكية
 function copyText(elementId, btn) {
@@ -494,20 +519,12 @@ function copyText(elementId, btn) {
 }
 
 // وظيفة العداد (التسبيح)
+// دالة الضغط على الزرار (بتزود على الشاشة فقط)
 function updateGeneralTasbih(btn) {
-    // 1. استخراج الرقم بس من النص (هياخد الـ 0 ويسيب كلمة تسبيح)
     let current = parseInt(btn.innerText) || 0;
+    btn.innerText = (current + 1) + " تسبيح";
     
-    // 2. زيادة الرقم
-    let newValue = current + 1;
-    
-    // 3. كتابة النص الجديد جوه الزرار
-    btn.innerText = newValue + " تسبيح";
-
-    // 4. (إضافة من عندي) حفظ الإجمالي عشان ميروحش لو قفلت الصفحة
-    localStorage.setItem('totalTasbih', (parseInt(localStorage.getItem('totalTasbih')) || 0) + 1);
-
-    // هزة بسيطة لو شغال من الموبايل
+    // هزة للموبايل
     if (navigator.vibrate) navigator.vibrate(50);
 }
 // وظيفة جلب مواقيت الصلاة
@@ -577,6 +594,13 @@ function displayPrayers(timings) {
 
 // تشغيل الوظيفة أول ما الموقع يفتح
 window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('load', () => {
+    // لما الصفحة تحمل، امسح أي رقم قديم من الذاكرة
+    localStorage.removeItem('tasbih'); 
+    
+    // أو لو بتستخدم متغير عادي، هو هيبدأ من صفر لوحده بمجرد ما المتغير يتعرف
+    tasbihCount = 0; 
+});
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -750,3 +774,228 @@ function sendCustomPrayerTimes() {
 navigator.serviceWorker.ready.then(() => {
     setTimeout(sendCustomPrayerTimes, 2000); // استراحة ثانيتين عشان يلحق يجيب المواعيد من الـ API بتاعك
 });
+function checkPrayerNotifications() {
+    const now = new Date();
+    
+    // إحنا هنا بنستخدم البيانات اللي بتيجي من دالة updatePrayers عندك
+    // لو افترضنا إن المواعيد متخزنة في مصفوفة اسمها prayerTimes
+    if (typeof prayerTimes === 'undefined') return;
+
+    for (let prayer in prayerTimes) {
+        const [time, modifier] = prayerTimes[prayer].split(' ');
+        let [hours, minutes] = time.split(':');
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+
+        // تحويل نظام 12 ساعة لنظام 24 ساعة عشان الحسابات
+        if (modifier === 'PM' && hours < 12) hours += 12;
+        if (modifier === 'AM' && hours === 12) hours = 0;
+
+        const prayerDate = new Date();
+        prayerDate.setHours(hours, minutes, 0);
+
+        const diff = (prayerDate - now) / (1000 * 60);
+
+        // التنبيه قبل المعاد بـ 5 دقائق (بين 4.5 و 5.5 دقيقة)
+        if (diff > 4.5 && diff <= 5.5) {
+            sendNotification("تذكير بالصلاة", `باقي 5 دقائق على أذان ${prayer}.. استعد للصلاة يا بطل`);
+        }
+    }
+}
+// دالة الحساب
+function calculateKhatma(days) {
+    const totalPages = 604; 
+    const pagesPerDay = Math.ceil(totalPages / days);
+    const pagesPerPrayer = Math.ceil(pagesPerDay / 5);
+    
+    return {
+        daily: pagesPerDay,
+        perPrayer: pagesPerPrayer,
+        days: days
+    };
+}
+
+// دالة العرض (دي اللي هتناديها من الزراير)
+function showKhatmaPlan(days) {
+    const plan = calculateKhatma(days);
+    const planText = `عشان تختم في ${plan.days} يوم، محتاج تقرأ ${plan.daily} صفحات يومياً، يعني حوالي ${plan.perPrayer} صفحات بعد كل صلاة.`;
+    
+    // إحنا هنستخدم doaDisplayElement اللي إنت معرفه في سطر 122
+   const resultElement = document.getElementById('quranContent'); // هنعرضها مكان "اختر لبدء القراءة"
+    if (resultElement) {
+        resultElement.innerText = planText;
+        resultElement.scrollIntoView({ behavior: 'smooth' });
+    }
+    }
+// 1. دالة حساب الخطة وتخزينها
+function confirmKhatmaPlan() {
+    const daysInput = document.getElementById('khatmaDays');
+    const days = parseInt(daysInput.value);
+
+    if (isNaN(days) || days <= 0) {
+        alert("يا ريت تكتب عدد أيام مظبوط يا بطل");
+        return;
+    }
+
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
+    
+    const khatmaData = {
+        totalDays: days,
+        pagesPerDay: pagesPerDay,
+        currentDay: 1 
+    };
+
+    localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
+    displayCurrentDayPlan(); // اظهر الورد فوراً بعد التأكيد
+}
+
+// 2. دالة الانتقال لليوم التالي (تصليح العطل)
+function markNextDay() {
+    let savedData = localStorage.getItem('userKhatma');
+    if (savedData) {
+        let data = JSON.parse(savedData);
+        if (data.currentDay < data.totalDays) {
+            data.currentDay += 1; // زيادة اليوم
+            localStorage.setItem('userKhatma', JSON.stringify(data)); // حفظ التعديل
+            displayCurrentDayPlan(); // تحديث الواجهة فوراً
+        } else {
+            alert("ألف مبروك.. ختمت المصحف! 🎉");
+            localStorage.removeItem('userKhatma');
+            location.reload();
+        }
+    }
+}
+
+// 3. دالة فتح الجزء المخصص للورد (تصليح فتح المصحف من الأول)
+function goToKhatmaJuz(juzNum) {
+    const juzSelect = document.getElementById('juzSelect');
+    if (juzSelect) {
+        juzSelect.value = juzNum; // اختيار الجزء في القائمة
+        
+        // تشغيل دالة العرض الأصلية اللي عندك في الكود (initQuranAndJuz أو مشابه)
+        // بنعمل Dispatch لحدث change عشان الـ listener يلقطه
+        juzSelect.dispatchEvent(new Event('change')); 
+        
+        // النزول لمكان القرآن
+        const quranBox = document.getElementById('quranContent');
+        if (quranBox) {
+            quranBox.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+// دالة خفيفة جداً لا تسبب تهنيج
+async function prepareOfflineKhatma(days) {
+    const quranDisplay = document.getElementById('quranContent');
+    if (!quranDisplay) return;
+    
+    // بدلاً من التحميل، بنخزن إعدادات الختمة فقط
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
+    
+    localStorage.setItem('khatma_settings', JSON.stringify({
+        days: days,
+        pagesPerDay: pagesPerDay
+    }));
+
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">✅ تم ضبط إعدادات الختمة! يمكنك الآن البدء بالقراءة.</p>';
+}
+// 1. دالة حساب الخطة وتخزينها (المعدلة لمنع التضارب)
+function confirmKhatmaPlan() {
+    const daysInput = document.getElementById('khatmaDays');
+    const days = parseInt(daysInput.value);
+
+    if (isNaN(days) || days <= 0) {
+        alert("يا ريت تكتب عدد أيام مظبوط يا بطل!");
+        return;
+    }
+
+    // أهم خطوة: مسح أي بقايا لختمة قديمة قبل تسجيل الجديدة
+    localStorage.removeItem('userKhatma');
+
+    const totalPages = 604;
+    const pagesPerDay = Math.ceil(totalPages / days);
+
+    // حفظ البيانات الجديدة على نضافة
+    const khatmaData = { totalDays: days, pagesPerDay: Math.ceil(604 / days), currentDay: 1 };
+    localStorage.setItem('userKhatma', JSON.stringify(khatmaData));
+    // ضيف السطر ده هنا عشان يبدأ تحميل الختمة فوراً
+    prepareOfflineKhatma(days);
+    // تنظيف واجهة العرض من أي ورد قديم كان معروض
+    const quranDisplay = document.getElementById('quranContent');
+    if (quranDisplay) quranDisplay.innerHTML = "";
+
+    alert("تم تفعيل نظام الختمة الجديد بنجاح!");
+    
+    displayCurrentDayPlan(); 
+}
+
+// 2. دالة عرض ورد اليوم الحالي (بتظهر الزرار اللي بيفتح المصحف)
+function displayCurrentDayPlan() {
+    const savedData = localStorage.getItem('userKhatma');
+    const resultElement = document.getElementById('khatma-result');
+
+    if (savedData && resultElement) {
+        const data = JSON.parse(savedData);
+        const startPage = (data.currentDay - 1) * data.pagesPerDay + 1;
+        let endPage = data.currentDay * data.pagesPerDay;
+        if (endPage > 604) endPage = 604;
+
+        resultElement.innerHTML = `
+            <div style="background: rgba(var(--accent-rgb), 0.1); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-top:20px; text-align: center;">
+                <h3 style="color: var(--accent); margin-bottom: 10px;">ورد اليوم (${data.currentDay} من ${data.totalDays})</h3>
+                <p>من صفحة <b>${startPage}</b> إلى <b>${endPage}</b></p>
+                
+                <button class="btn-next" onclick="goToKhatmaPages(${startPage}, ${endPage})" style="background: var(--accent); color: #000; width: 100%; margin-bottom: 10px; font-weight:bold; cursor:pointer;">
+                    📖 اقرأ ورد اليوم الآن
+                </button>
+                
+                <button class="btn-next" onclick="markNextDay()" style="background: none; border: 1px solid #555; color: #ccc; width: 100%; cursor:pointer;">
+                    خلصت الورد.. اليوم التالي ✅
+                </button>
+            </div>
+        `;
+    }
+}
+// دالة عرض الورد (سريعة ولا تسبب تهنيج)
+async function goToKhatmaPages(startPage, endPage) {
+    const quranDisplay = document.getElementById('quranContent');
+    if (!quranDisplay) return;
+
+    // تم حذف شرط التحقق من الإنترنت navigator.onLine لعدم ظهور رسائل للمستخدم
+
+    quranDisplay.innerHTML = '<p style="text-align:center; color:#2ecc71;">⏳ جاري تحميل الورد..</p>';
+
+    try {
+        let html = "";
+        let lastSurah = "";
+
+        for (let p = startPage; p <= endPage; p++) {
+            // محاولة جلب الصفحة (المتصفح سيحاول الاتصال، إذا لم يوجد نت سيذهب مباشرة للـ catch)
+            const response = await fetch(`https://api.alquran.cloud/v1/page/${p}/quran-uthmani`);
+            const data = await response.json();
+            const pageData = data.data;
+
+            // التنسيق المريح للعين
+            html += `<div class="page-block" style="border-bottom: 1px solid #444; padding: 15px 0; margin-bottom: 10px; direction:rtl;">
+                        <div style="text-align:center; color: #2ecc71; font-size: 0.9rem; margin-bottom: 10px;">📄 صفحة ${p}</div>
+                        <div style="font-size: 1.3rem; line-height: 2.2; text-align: justify; color: #eee;">`;
+
+            pageData.ayahs.forEach(ayah => {
+                if (ayah.surah.name !== lastSurah) {
+                    html += `<div style="text-align:center; color:#2ecc71; font-weight:bold; margin: 15px 0; border: 1px solid #2ecc71; padding: 5px; border-radius: 5px;">✨ ${ayah.surah.name} ✨</div>`;
+                    lastSurah = ayah.surah.name;
+                }
+                html += ` ${ayah.text} <span style="color:#2ecc71; font-size: 0.8rem; margin: 0 5px;">(${ayah.numberInSurah})</span> `;
+            });
+            html += `</div></div>`;
+        }
+        
+        quranDisplay.innerHTML = html;
+        quranDisplay.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (e) {
+        // في حال فشل التحميل لأي سبب (إنترنت مقطوع أو غيره)، يظهر تنبيه بسيط
+        quranDisplay.innerHTML = '<p style="color:red; text-align:center;">⚠️ تعذر تحميل الورد، يرجى التأكد من اتصال الإنترنت.</p>';
+    }
+}
